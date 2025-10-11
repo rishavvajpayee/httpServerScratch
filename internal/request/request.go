@@ -15,12 +15,21 @@ type RequestLine struct {
 
 type Request struct {
 	RequestLine RequestLine
-	// Headers     map[string]string
-	// Body        []byte
 }
 
 var SEPARATOR = "\r\n"
 var ERROR_BAD_START_LINE = fmt.Errorf("bad start line")
+
+type ParseState string
+
+const (
+	StateInit ParseState = "init"
+	StateDone ParseState = "done"
+)
+
+func (r *Request) parse(data []byte) (int, error) {
+	return 0, nil
+}
 
 func ParseRequestline(s string) (*RequestLine, string, error) {
 	idx := strings.Index(s, SEPARATOR)
