@@ -13,7 +13,6 @@ var ErrParseHeader = fmt.Errorf("error parsing headers")
 func isValidFieldName(chars []byte) bool {
 	/*
 		In other words, a field-name must contain only:
-
 		Uppercase letters: A-Z
 		Lowercase letters: a-z
 		Digits: 0-9
@@ -86,7 +85,6 @@ func (h *Headers) Parse(data []byte) (int, bool, error) {
 	done := false
 	for {
 		idx := bytes.Index(data[read:], rn)
-		fmt.Println("IDX :", idx)
 		if idx == -1 {
 			break
 		}
@@ -97,6 +95,7 @@ func (h *Headers) Parse(data []byte) (int, bool, error) {
 			read += len(rn)
 			break
 		}
+
 		name, value, err := ParseHeader(data[read : read+idx])
 		if err != nil {
 			return read, done, ErrParseHeader
