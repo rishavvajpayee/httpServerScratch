@@ -3,19 +3,42 @@ package headers
 import (
 	"bytes"
 	"fmt"
+	"strings"
 )
 
 var ErrMalformedFieldLine = fmt.Errorf("malformed fieldLine")
 var ErrMalformedFieldName = fmt.Errorf("malformed fieldName")
 var ErrParseHeader = fmt.Errorf("error parsing headers")
 
-type Headers map[string]string
+func isToken(str []byte) bool {
+	/*
+		In other words, a field-name must contain only:
+
+		Uppercase letters: A-Z
+		Lowercase letters: a-z
+		Digits: 0-9
+		Special characters: !, #, $, %, &, ', *, +, -, ., ^, _, `, |, ~
+	*/
+
+	for _, ch := range str {
+		found := false
+		switch ch {
+		case '!', '#', '$', '%', '&', '\'', '*', '+', '-', '.', '^', '_', '`', '|', '~':
+			found = true
+		}
+
+		if ch >= 'A' && ch <= 'Z' || ch >= 'a' && ch <= 'z' || ch >= '0' && ch <= '9' {
+			found = true
+		}
+
+		if !found {
+			return false
+		}
+	}
+	return true
+}
 
 var rn = []byte("\r\n")
-
-func NewHeaders() Headers {
-	return map[string]string{}
-}
 
 func ParseHeader(fieldLine []byte) (string, string, error) {
 	parts := bytes.SplitN(fieldLine, []byte(":"), 2)
@@ -35,7 +58,25 @@ func ParseHeader(fieldLine []byte) (string, string, error) {
 	return string(name), string(value), nil
 }
 
-func (h Headers) Parse(data []byte) (int, bool, error) {
+type Headers struct {
+	headers map[string]string
+}
+
+func NewHeaders() *Headers {
+	return &Headers{
+		headers: map[string]string{},
+	}
+}
+
+func (h *Headers) Get(name string) string {
+	return h.headers[strings.ToLower(name)]
+}
+
+func (h *Headers) Set(name, value string) {
+	h.headers[strings.ToLower(name)] = value
+}
+
+func (h *Headers) Parse(data []byte) (int, bool, error) {
 	read := 0
 	done := false
 	for {
@@ -56,8 +97,12 @@ func (h Headers) Parse(data []byte) (int, bool, error) {
 			return read, done, ErrParseHeader
 		}
 
+		if !isToken([]byte(name)) {
+			return read, done, ErrMalformedFieldName
+		}
+
 		read += idx
-		h[name] = value
+		h.Set(name, value)
 	}
 	return read, done, nil
 }
