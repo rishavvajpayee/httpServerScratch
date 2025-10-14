@@ -105,7 +105,7 @@ func (h *Headers) Parse(data []byte) (int, bool, error) {
 			return read, done, ErrMalformedFieldName
 		}
 
-		read += idx
+		read += idx + len(rn)
 		h.Set(name, value)
 	}
 	return read, done, nil
