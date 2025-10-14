@@ -48,6 +48,7 @@ outer:
 	for {
 		currentData := data[read:]
 		switch r.State {
+
 		case StateError:
 			return 0, ErrorRequestState
 
