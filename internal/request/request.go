@@ -48,7 +48,6 @@ outer:
 	for {
 		currentData := data[read:]
 		switch r.State {
-
 		case StateError:
 			return 0, ErrorRequestState
 
@@ -69,6 +68,9 @@ outer:
 			n, done, err := r.Headers.Parse(currentData)
 			if err != nil {
 				return 0, err
+			}
+			if n == 0 {
+				break outer
 			}
 			read += n
 			if done {

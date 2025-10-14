@@ -48,8 +48,6 @@ func ParseHeader(fieldLine []byte) (string, string, error) {
 	name := parts[0]
 	value := bytes.TrimSpace(parts[1])
 
-	fmt.Printf("Name:%s\nValue:%s\n", name, value)
-
 	if bytes.HasSuffix(name, []byte(" ")) {
 		return "", "", ErrMalformedFieldName
 	}

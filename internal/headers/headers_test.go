@@ -40,7 +40,7 @@ func TestHeadersParse(t *testing.T) {
 	_, done, err = headers.Parse(data)
 	require.NoError(t, err)
 	require.NotNil(t, headers)
-	assert.Equal(t, "localhost:42069,	localhost:42069", headers.Get("Host"))
+	assert.Equal(t, "localhost:42069,localhost:42069", headers.Get("Host"))
 	assert.False(t, done)
 
 }
