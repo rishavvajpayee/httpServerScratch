@@ -8,18 +8,7 @@ import (
 	header "github.com/rishavvajpayee/httpServerScratch/internal/headers"
 )
 
-type RequestLine struct {
-	HttpVersion   string
-	RequestTarget string
-	Method        string
-}
-
-type Request struct {
-	RequestLine RequestLine
-	Headers     *header.Headers
-	State       ParseState
-}
-
+// file level Errors and initializers
 var SEPARATOR = []byte("\r\n")
 var ErrBadStartLine = fmt.Errorf("bad start line")
 var ErrMalformedRequestLine = fmt.Errorf("malformed request line")
@@ -33,6 +22,18 @@ const (
 	StateHeaders ParseState = "headers"
 	StateError   ParseState = "error"
 )
+
+type RequestLine struct {
+	HttpVersion   string
+	RequestTarget string
+	Method        string
+}
+
+type Request struct {
+	RequestLine RequestLine
+	Headers     *header.Headers
+	State       ParseState
+}
 
 func NewRequest() *Request {
 	return &Request{
@@ -69,7 +70,6 @@ outer:
 			if err != nil {
 				return 0, err
 			}
-
 			read += n
 			if done {
 				r.State = StateDone
