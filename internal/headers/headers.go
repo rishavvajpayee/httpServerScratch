@@ -10,7 +10,7 @@ var ErrMalformedFieldLine = fmt.Errorf("malformed fieldLine")
 var ErrMalformedFieldName = fmt.Errorf("malformed fieldName")
 var ErrParseHeader = fmt.Errorf("error parsing headers")
 
-func isToken(str []byte) bool {
+func isValidFieldName(chars []byte) bool {
 	/*
 		In other words, a field-name must contain only:
 
@@ -20,7 +20,7 @@ func isToken(str []byte) bool {
 		Special characters: !, #, $, %, &, ', *, +, -, ., ^, _, `, |, ~
 	*/
 
-	for _, ch := range str {
+	for _, ch := range chars {
 		found := false
 		switch ch {
 		case '!', '#', '$', '%', '&', '\'', '*', '+', '-', '.', '^', '_', '`', '|', '~':
@@ -97,7 +97,7 @@ func (h *Headers) Parse(data []byte) (int, bool, error) {
 			return read, done, ErrParseHeader
 		}
 
-		if !isToken([]byte(name)) {
+		if !isValidFieldName([]byte(name)) {
 			return read, done, ErrMalformedFieldName
 		}
 
