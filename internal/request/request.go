@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+
+	header "github.com/rishavvajpayee/httpServerScratch/internal/headers"
 )
 
 type RequestLine struct {
@@ -14,6 +16,7 @@ type RequestLine struct {
 
 type Request struct {
 	RequestLine RequestLine
+	Headers     *header.Headers
 	State       ParseState
 }
 
@@ -25,14 +28,16 @@ var ErrorRequestState = fmt.Errorf("error in request State")
 type ParseState string
 
 const (
-	StateInit  ParseState = "init"
-	StateDone  ParseState = "done"
-	StateError ParseState = "error"
+	StateInit    ParseState = "init"
+	StateDone    ParseState = "done"
+	StateHeaders ParseState = "headers"
+	StateError   ParseState = "error"
 )
 
 func NewRequest() *Request {
 	return &Request{
-		State: StateInit,
+		State:   StateInit,
+		Headers: header.NewHeaders(),
 	}
 }
 
@@ -40,11 +45,14 @@ func (r *Request) parse(data []byte) (int, error) {
 	read := 0
 outer:
 	for {
+		currentData := data[read:]
 		switch r.State {
+
 		case StateError:
 			return 0, ErrorRequestState
+
 		case StateInit:
-			rl, n, err := ParseRequestline(data[read:])
+			rl, n, err := ParseRequestline(currentData)
 			if err != nil {
 				r.State = StateError
 				return 0, err
@@ -54,11 +62,24 @@ outer:
 			}
 			r.RequestLine = *rl
 			read += n
+			r.State = StateHeaders
 
-			r.State = StateDone
+		case StateHeaders:
+			n, done, err := r.Headers.Parse(currentData)
+			if err != nil {
+				return 0, err
+			}
+
+			read += n
+			if done {
+				r.State = StateDone
+			}
 
 		case StateDone:
 			break outer
+
+		default:
+			panic("somehow we have programmed poorly")
 		}
 	}
 	return read, nil
