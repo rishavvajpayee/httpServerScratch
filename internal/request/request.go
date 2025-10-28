@@ -28,14 +28,18 @@ type RequestLine struct {
 	HttpVersion   string
 	RequestTarget string
 	Method        string
-	Body          string
 }
 
 type Request struct {
 	RequestLine RequestLine
 	Headers     *header.Headers
-	Body        []byte
+	Body        string
 	State       ParseState
+}
+
+func (r *Request) hasBody() bool {
+	length := r.Headers.GetInt("content-length", 0)
+	return length > 0
 }
 
 func NewRequest() *Request {
@@ -50,6 +54,9 @@ func (r *Request) parse(data []byte) (int, error) {
 outer:
 	for {
 		currentData := data[read:]
+		if len(currentData) == 0 {
+			break outer
+		}
 		switch r.State {
 
 		case StateError:
@@ -71,17 +78,37 @@ outer:
 		case StateHeaders:
 			n, done, err := r.Headers.Parse(currentData)
 			if err != nil {
+				r.State = StateError
 				return 0, err
 			}
 			if n == 0 {
 				break outer
 			}
 			read += n
+
+			// really i dont like this ..
+			// in the real world we would not get an EOF after reading the data
 			if done {
-				r.State = StateDone
+				if r.hasBody() {
+					r.State = StateBody
+				} else {
+					r.State = StateDone
+				}
 			}
 
 		case StateBody:
+			length := r.Headers.GetInt("content-length", 0)
+			if length == 0 {
+				panic("Chunk not implemented")
+			}
+			// push the body to Request.Body
+			remaining := min(length-len(r.Body), len(currentData))
+			r.Body += string(currentData[:remaining])
+			read += remaining
+
+			if len(r.Body) == length {
+				r.State = StateDone
+			}
 
 		case StateDone:
 			break outer

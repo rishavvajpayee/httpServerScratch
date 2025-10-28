@@ -3,6 +3,7 @@ package headers
 import (
 	"bytes"
 	"fmt"
+	"strconv"
 	"strings"
 )
 
@@ -63,6 +64,19 @@ func NewHeaders() *Headers {
 	return &Headers{
 		headers: map[string]string{},
 	}
+}
+
+func (h *Headers) GetInt(name string, defaultValue int) int {
+	valueStr, exists := h.Get(name)
+	if !exists {
+		return defaultValue
+	}
+
+	value, err := strconv.Atoi(valueStr)
+	if err != nil {
+		return defaultValue
+	}
+	return value
 }
 
 func (h *Headers) Get(name string) (string, bool) {

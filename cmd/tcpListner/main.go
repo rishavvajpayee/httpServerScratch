@@ -23,7 +23,7 @@ func main() {
 
 		r, err := request.RequestFromReader(conn)
 		if err != nil {
-			log.Fatal("Error @RequestFromReader")
+			log.Fatal("Error @RequestFromReader : ", err)
 		}
 		fmt.Printf("Request Line:\n")
 		fmt.Printf("- Method: %s\n", r.RequestLine.Method)
@@ -33,6 +33,7 @@ func main() {
 		r.Headers.ForEach(func(n, v string) {
 			fmt.Printf("- %s: %s\n", n, v)
 		})
+		fmt.Printf("Body:\n")
+		fmt.Printf("%s\n", r.Body)
 	}
-
 }
