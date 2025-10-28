@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"io"
 	"log"
 	"os"
@@ -12,9 +13,12 @@ import (
 	server "github.com/rishavvajpayee/httpServerScratch/internal/server"
 )
 
-const port = 8000
+const defaultport = 8000
 
 func main() {
+	portFlag := flag.Uint("p", defaultport, "an int")
+	flag.Parse()
+	port := uint16(*portFlag)
 	server, err := server.Serve(port, func(w io.Writer, req *request.Request) *server.HandlerError {
 		handlerErr := &server.HandlerError{}
 		switch req.RequestLine.RequestTarget {
@@ -31,9 +35,11 @@ func main() {
 		}
 		return nil
 	})
+
 	if err != nil {
 		log.Fatalf("Error starting server: %v", err)
 	}
+
 	defer server.Close()
 	log.Println("Server started on port", port)
 
