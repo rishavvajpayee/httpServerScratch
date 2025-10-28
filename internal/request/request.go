@@ -33,7 +33,7 @@ type RequestLine struct {
 type Request struct {
 	RequestLine RequestLine
 	Headers     *header.Headers
-	Body        string
+	Body        []byte
 	State       ParseState
 }
 
@@ -103,7 +103,7 @@ outer:
 			}
 			// push the body to Request.Body
 			remaining := min(length-len(r.Body), len(currentData))
-			r.Body += string(currentData[:remaining])
+			r.Body = append(r.Body, currentData[:remaining]...)
 			read += remaining
 
 			if len(r.Body) == length {
