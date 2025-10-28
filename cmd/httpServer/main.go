@@ -13,10 +13,8 @@ import (
 	server "github.com/rishavvajpayee/httpServerScratch/internal/server"
 )
 
-const defaultport = 8000
-
 func main() {
-	portFlag := flag.Uint("p", defaultport, "an int")
+	portFlag := flag.Uint("p", 8000, "an int")
 	flag.Parse()
 	port := uint16(*portFlag)
 	server, err := server.Serve(port, func(w io.Writer, req *request.Request) *server.HandlerError {
