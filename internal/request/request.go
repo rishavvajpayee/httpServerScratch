@@ -20,6 +20,7 @@ const (
 	StateInit    ParseState = "init"
 	StateDone    ParseState = "done"
 	StateHeaders ParseState = "headers"
+	StateBody    ParseState = "body"
 	StateError   ParseState = "error"
 )
 
@@ -27,11 +28,13 @@ type RequestLine struct {
 	HttpVersion   string
 	RequestTarget string
 	Method        string
+	Body          string
 }
 
 type Request struct {
 	RequestLine RequestLine
 	Headers     *header.Headers
+	Body        []byte
 	State       ParseState
 }
 
@@ -77,6 +80,8 @@ outer:
 			if done {
 				r.State = StateDone
 			}
+
+		case StateBody:
 
 		case StateDone:
 			break outer

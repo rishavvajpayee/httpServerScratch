@@ -1,6 +1,7 @@
 package headers
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -8,13 +9,20 @@ import (
 )
 
 func TestHeadersParse(t *testing.T) {
+
+	var host string
+	var ok bool
 	// Test: Valid single header
 	headers := NewHeaders()
 	data := []byte("Host: localhost:42069\r\n\r\n")
 	n, done, err := headers.Parse(data)
 	require.NoError(t, err)
 	require.NotNil(t, headers)
-	assert.Equal(t, "localhost:42069", headers.Get("Host"))
+	host, ok = headers.Get("Host")
+	if !ok {
+		fmt.Println("GET METHOD NOT OKAY RETURN")
+	}
+	assert.Equal(t, "localhost:42069", host)
 	assert.Equal(t, 25, n)
 	assert.True(t, done)
 
@@ -40,7 +48,10 @@ func TestHeadersParse(t *testing.T) {
 	_, done, err = headers.Parse(data)
 	require.NoError(t, err)
 	require.NotNil(t, headers)
-	assert.Equal(t, "localhost:42069,localhost:42069", headers.Get("Host"))
+	host, ok = headers.Get("Host")
+	if !ok {
+		fmt.Println("GET METHOD NOT OKAY RETURN")
+	}
+	assert.Equal(t, "localhost:42069,localhost:42069", host)
 	assert.False(t, done)
-
 }
