@@ -157,6 +157,8 @@ func RequestFromReader(reader io.Reader) (*Request, error) {
 	// NOTE: buf could get overrun
 	buf := make([]byte, 1024)
 	bufLen := 0
+
+	// this is a stateMachine and changes state as it goes parsing
 	for !request.done() {
 		n, err := reader.Read(buf[bufLen:])
 		if err != nil {

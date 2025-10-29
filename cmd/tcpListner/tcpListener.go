@@ -9,7 +9,6 @@ import (
 )
 
 func main() {
-
 	fmt.Println("Rolling the Server")
 	listener, err := net.Listen("tcp", ":8000")
 	if err != nil {
